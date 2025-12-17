@@ -470,6 +470,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         Debug.info(TimeUtils.formatTimeSeconds(secsTilNextReset)+" until the reset for "+type.lowerName()+" (next formatted: "+type.getNextReset().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" next: "+nextReset+")");
 
         if(isShuttingDown()) return;
+        // don't bother scheduling the reset if it's more than 16 minutes away (since resets are scheduled every 15 minutes)
+        if(secsTilNextReset > 16 * 60) return;
         Task task = getScheduler().runTaskLaterAsynchronously(
                 () -> {
                     try {
