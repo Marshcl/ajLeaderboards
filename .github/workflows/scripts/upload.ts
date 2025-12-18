@@ -129,7 +129,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
 <p>
     Changes in this build:
     <ul>
-        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "<br/>\n").join()}
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "<br/>\n").join("")}
     </ul>
     
     ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
