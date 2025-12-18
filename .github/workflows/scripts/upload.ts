@@ -136,6 +136,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
 </p>
 `.trim();
     polymartData.set("file", file);
+`.trim());
 
     const polymartResponse = await fetch("https://api.polymart.org/v1/postUpdate", {
         method: "POST",
