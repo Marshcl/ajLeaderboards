@@ -82,9 +82,8 @@ if(!github?.event) {
 <p>
     Changes in this build:
     <ul>
-        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "\n").join("")}
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>`).join("\n")}
     </ul>
-    
     ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
 </p>
 `.trim(),
@@ -136,9 +135,8 @@ if(!github?.event) {
 <p>
     Changes in this build:
     <ul>
-        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "\n").join("")}
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>`).join("\n")}
     </ul>
-    
     ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
 </p>
 `.trim());
