@@ -115,7 +115,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
 
     const polymartData = new FormData();
     polymartData.set("api_key", POLYMART_TOKEN);
-    polymartData.set("resource_id", "2726");
+    polymartData.set("product", "2726");
     polymartData.set("version", version);
     polymartData.set("update_title", `Pre-release v${version}`);
     polymartData.set("tag", "beta");
