@@ -73,14 +73,21 @@ if(!github?.event) {
         "version_number": `${version}`,
         "name": `Pre-release v${version}`,
         "changelog":
-`Note: This is a potentially unstable (and possibly untested) build. It is not guaranteed to work, and may have issues.<br>
-If you do decide to run this, make sure to report any issues to support.<br>
-<br>
-Changes in this build:<br>
-${changes.map(c => `<a href="${c.url}">${c.message}</a><br>`).join("")}
+            `
+<p>
+    Note: This is a potentially unstable (and possibly untested) build. It is not guaranteed to work, and may have issues.<br/>
+    If you do decide to run this, make sure to report any issues to support.
+</p>
 
-${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>` : ``}
-`,
+<p>
+    Changes in this build:
+    <ul>
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "\n").join("")}
+    </ul>
+    
+    ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
+</p>
+`.trim(),
         "file_parts": ["file"],
         "version_type": "beta",
         "loaders": ["paper","spigot"],
@@ -129,7 +136,7 @@ ${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>
 <p>
     Changes in this build:
     <ul>
-        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "<br/>\n").join("")}
+        ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "\n").join("")}
     </ul>
     
     ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
