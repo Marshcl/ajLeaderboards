@@ -50,7 +50,8 @@ if(!github?.event) {
     const versions = await fetch("https://ajg0702.us/pl/updater/mc-versions.php")
         .then(res => res.json());
 
-    const changes = github.event.commits;
+    const event = github.event;
+    const changes = event.commits;
 
     const version = await fs.readFile("build.gradle.kts", "utf8")
         .then(f => f.split("version = \"")[1].split('"')[0]);
@@ -78,7 +79,7 @@ If you do decide to run this, make sure to report any issues to support.<br>
 Changes in this build:<br>
 ${changes.map(c => `<a href="${c.url}">${c.message}</a><br>`).join("")}
 
-${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined changes</a>` : ``}
+${changes.length > 1 ? `<br><a href="${event.compare}">View combined changes</a>` : ``}
 `,
         "file_parts": ["file"],
         "version_type": "beta",
@@ -131,7 +132,7 @@ ${changes.length > 1 ? `<br><a href="${github.event.compare}">View combined chan
         ${changes.map(c => `<li><a href="${c.url}">${c.message}</a></li>` + "<br/>\n").join()}
     </ul>
     
-    ${changes.length > 1 ? `<a href="${github.event.compare}">View combined changes</a>` : ``}
+    ${changes.length > 1 ? `<a href="${event.compare}">View combined changes</a>` : ``}
 </p>
 `.trim();
     polymartData.set("file", file);
