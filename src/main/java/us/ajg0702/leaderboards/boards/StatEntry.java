@@ -148,6 +148,15 @@ public class StatEntry {
 		}
 	}
 
+	public UUID getSkinUUID() {
+		if(playerID != null) return playerID;
+		if(plugin.getMessages().hasMessage("no-player-skin-uuid." + board)) {
+			return UUID.fromString(plugin.getMessages().getRawString("no-player-skin-uuid." + board));
+		} else {
+			return UUID.fromString(plugin.getMessages().getRawString("no-player-skin-uuid.default"));
+		}
+	}
+
 	@NotNull
 	public String getPlayerDisplayName() {
 		return playerDisplayName;
