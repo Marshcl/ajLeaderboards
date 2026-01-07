@@ -7,7 +7,6 @@ import com.google.common.cache.RemovalCause;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import us.ajg0702.leaderboards.Debug;
@@ -22,13 +21,15 @@ import us.ajg0702.leaderboards.cache.methods.MysqlMethod;
 import us.ajg0702.leaderboards.nms.legacy.ThreadFactoryProxy;
 import us.ajg0702.leaderboards.utils.Cached;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TopManager {
 
-    private final ThreadPoolExecutor fetchService;
+    private final ExecutorService fetchService;
     //private final ThreadPoolExecutor fetchService = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     private final AtomicInteger fetching = new AtomicInteger(0);
@@ -42,17 +43,27 @@ public class TopManager {
 
     private final LeaderboardPlugin plugin;
     public TopManager(LeaderboardPlugin pl, List<String> initialBoards) {
+        ExecutorService executor;
         plugin = pl;
         CacheMethod method = plugin.getCache().getMethod();
         int t = method instanceof MysqlMethod ? Math.max(10, method.getMaxConnections()) : plugin.getAConfig().getInt("max-fetching-threads");
         int keepAlive = plugin.getAConfig().getInt("fetching-thread-pool-keep-alive");
-        fetchService = new ThreadPoolExecutor(
-                t, t,
-                keepAlive, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(1000000, true),
-                ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
-        );
-        fetchService.allowCoreThreadTimeOut(true);
+        try {
+            // Check if method exists (Java 21+)
+            Method factory = Executors.class.getMethod("newVirtualThreadPerTaskExecutor");
+            executor = (ExecutorService) factory.invoke(null);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            plugin.getLogger().info("Using old thread pool due to running on an older Java version! If possible, updating to Java 21+ is recommended.");
+            // Fallback to Java 11/17 logic
+            executor = new ThreadPoolExecutor(
+                    t, t,
+                    keepAlive, TimeUnit.MILLISECONDS,
+                    new ArrayBlockingQueue<>(1000000, true),
+                    ThreadFactoryProxy.getDefaultThreadFactory("AJLBFETCH")
+            );
+            ((ThreadPoolExecutor) executor).allowCoreThreadTimeOut(true);
+        }
+        fetchService = executor;
         plugin.getScheduler().runTaskTimerAsynchronously(() -> {
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
@@ -416,7 +427,7 @@ public class TopManager {
     }
     public List<String> fetchBoards() {
         int f = fetching.getAndIncrement();
-        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching ("+fetchService.getPoolSize()+") (boards): "+f);
+        if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Fetching (boards): "+f);
         boardCache = plugin.getCache().getBoards();
         if(plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Finished fetching boards");
         removeFetching();
@@ -434,7 +445,7 @@ public class TopManager {
 
     public int getFetchingAverage() {
         List<Integer> snap = new ArrayList<>(rolling);
-        if(snap.size() == 0) return 0;
+        if(snap.isEmpty()) return 0;
         int sum = 0;
         for(Integer n : snap) {
             if(n == null) break;
@@ -598,18 +609,34 @@ public class TopManager {
     }
 
     public int getActiveFetchers() {
-        return fetchService.getActiveCount();
+        if(fetchService instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) fetchService).getActiveCount();
+        } else {
+            return -1;
+        }
     }
     public int getMaxFetchers() {
-        return fetchService.getMaximumPoolSize();
+        if(fetchService instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) fetchService).getMaximumPoolSize();
+        } else {
+            return -1;
+        }
     }
 
     public int getQueuedTasks() {
-        return fetchService.getQueue().size();
+        if(fetchService instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) fetchService).getQueue().size();
+        } else {
+            return -1;
+        }
     }
 
     public int getWorkers() {
-        return fetchService.getPoolSize();
+        if(fetchService instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) fetchService).getPoolSize();
+        } else {
+            return -1;
+        }
     }
 
     public boolean boardExists(String board) {
