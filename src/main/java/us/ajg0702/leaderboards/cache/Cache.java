@@ -169,7 +169,16 @@ public class Cache {
 
 			ps.setString(1, player.getUniqueId().toString());
 
-			ResultSet rs = ps.executeQuery();
+			ResultSet rs;
+			try {
+				rs = ps.executeQuery();
+			} catch(Exception e) {
+				if(e.getMessage().contains("Communications link failure") && plugin.isShuttingDown()) {
+					return StatEntry.error(-1, board, type);
+				} else {
+					throw e;
+				}
+			}
 
 			rs.next();
 
