@@ -553,7 +553,7 @@ public class TopManager {
         boolean moreFetching = plugin.getAConfig().getBoolean("more-fetching");
 
 
-        int r = moreFetching ? (recentLargeAverage ? 5000 : 1000) : 20000;
+        int r = moreFetching ? (recentLargeAverage ? 5_000 : 1_000) : 20_000;
 
         int fetchingAverage = getFetchingAverage();
 
@@ -570,39 +570,39 @@ public class TopManager {
                     return 500;
                 }
                 if(fetchingAverage > 0) {
-                    r = 2000;
+                    r = 2_000;
                 }
                 if(fetchingAverage >= 2) {
-                    r = 5000;
+                    r = 5_000;
                 }
             }
-            if((fetchingAverage >= 5 || totalTasks > 25) && activeFetchers > 0) {
-                r = 10000;
+            if((fetchingAverage >= 3 || totalTasks > 10) && activeFetchers > 0) {
+                r = 10_000;
             }
-            if((fetchingAverage > 10 || totalTasks > 59) && activeFetchers > 0) {
-                r = 15000;
+            if((fetchingAverage > 5 || totalTasks > 15) && activeFetchers > 0) {
+                r = 15_000;
             }
         }
-        if((fetchingAverage > 20 || totalTasks > 75) && activeFetchers > 0) {
-            r = 30000;
+        if((fetchingAverage > 7 || totalTasks > 20) && activeFetchers > 0) {
+            r = 30_000;
         }
-        if((fetchingAverage > 30 || totalTasks > 100) && activeFetchers > 0) {
-            r = 60000;
+        if((fetchingAverage > 10 || totalTasks > 25) && activeFetchers > 0) {
+            r = 60_000;
         }
-        if(fetchingAverage > 50 || totalTasks > 125) {
+        if(fetchingAverage > 20 || totalTasks > 30) {
             lastLargeAverage = System.currentTimeMillis();
             if(activeFetchers > 0) {
-                r = 120000;
+                r = 120_000;
             }
         }
+        if((fetchingAverage > 35 || totalTasks > 50) && activeFetchers > 0) {
+            r = 180_000;
+        }
+        if((fetchingAverage > 50 || totalTasks > 75) && activeFetchers > 0) {
+            r = 3_600_000; // 1 hour
+        }
         if((fetchingAverage > 100 || totalTasks > 150) && activeFetchers > 0) {
-            r = 180000;
-        }
-        if((fetchingAverage > 300 || totalTasks > 175) && activeFetchers > 0) {
-            r = 3600000;
-        }
-        if((fetchingAverage > 400 || totalTasks > 200) && activeFetchers > 0) {
-            r = 7200000;
+            r = 7_200_000; // 2 hours
         }
 
 
