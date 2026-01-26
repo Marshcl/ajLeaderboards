@@ -51,7 +51,7 @@ public class TopManager {
         try {
             // Check if virtual thread methods exist (Java 21+)
             Object builder = Thread.class.getMethod("ofVirtual").invoke(null);
-            builder.getClass().getMethod("name", String.class, Long.class)
+            builder.getClass().getMethod("name", String.class, Long.TYPE)
                     .invoke(builder, "AJLBFETCH", 0L);
             threadFactory = (ThreadFactory) builder.getClass().getMethod("factory")
                     .invoke(builder);
