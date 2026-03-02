@@ -184,7 +184,12 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         signManager = new SignManager(this);
         headManager = new HeadManager(this);
-        headUtils = new HeadUtils(getLogger(), new Debug(), compatScheduler);
+        try {
+            headUtils = new HeadUtils(getLogger(), new Debug(), compatScheduler);
+        } catch (NoClassDefFoundError e) {
+            getLogger().warning("Detected NoClassDefFoundError (will be shown below)! Try deleting the 'ajLeaderboards/libs' folder, then check the logs during restart for any errors/warnings (even if it works that time)");
+            throw e;
+        }
         armorStandManager = new ArmorStandManager(this);
 
         resetSaver = new ResetSaver(this);
