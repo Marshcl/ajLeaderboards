@@ -22,8 +22,8 @@ import us.ajg0702.leaderboards.utils.BoardPlayer;
 import us.ajg0702.leaderboards.utils.Partition;
 import us.ajg0702.utils.common.ConfigFile;
 
+import java.time.Instant;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -766,9 +766,8 @@ public class Cache {
 		Bukkit.getPluginManager().callEvent(new PreTimedTypeResetEvent(board, type));
 
 		long startTime = System.currentTimeMillis();
-		LocalDateTime startDateTime = LocalDateTime.now();
-		long newTime = startDateTime.atOffset(ZoneOffset.UTC).toEpochSecond()*1000;
-		Debug.info(board+" "+type+" "+startDateTime.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" "+newTime);
+		long newTime = Instant.now().toEpochMilli();
+		Debug.info(board+" "+type+" "+Instant.ofEpochMilli(newTime).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)+" "+newTime);
 
 
 		List<String> saveableTypes = plugin.getAConfig().getStringList("reset-save-types");

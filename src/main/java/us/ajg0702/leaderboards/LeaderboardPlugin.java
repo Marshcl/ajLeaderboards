@@ -439,13 +439,13 @@ public class LeaderboardPlugin extends JavaPlugin {
 
         long now = Instant.now().getEpochSecond();
 
-        long nextReset = type.getNextReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
+        long nextReset = type.getNextResetEpochSeconds();
 
         List<String> resetNow = new ArrayList<>();
 
         for (String board : getTopManager().getBoards()) {
             long lastReset = topManager.getLastReset(board, type);
-            long estLastReset = type.getEstimatedLastReset().toEpochSecond(TimeUtils.getDefaultZoneOffset());
+            long estLastReset = type.getEstimatedLastResetEpochSeconds();
 
             if(lastReset < estLastReset) {
                 Debug.info("lastRest for "+type+" "+board+" is before estimatedLastReset! "+lastReset+" < "+estLastReset);

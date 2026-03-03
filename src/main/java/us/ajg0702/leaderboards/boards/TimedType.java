@@ -3,6 +3,7 @@ package us.ajg0702.leaderboards.boards;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -82,6 +83,18 @@ public enum TimedType {
                 return now.withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
         }
         throw new IllegalStateException();
+    }
+
+    public long getNextResetEpochSeconds() {
+        LocalDateTime nextReset = getNextReset();
+        ZoneId zone = ZoneId.systemDefault();
+        return nextReset.atZone(zone).toEpochSecond();
+    }
+
+    public long getEstimatedLastResetEpochSeconds() {
+        LocalDateTime lastReset = getEstimatedLastReset();
+        ZoneId zone = ZoneId.systemDefault();
+        return lastReset.atZone(zone).toEpochSecond();
     }
 
     public static TimedType of(String string) {
