@@ -134,6 +134,25 @@ update-stats: true
 #  Default: []
 only-update: []
 
+# Which boards should we periodically update offline players for?
+# This will update stats for players who are not currently online on the specified boards.
+# Useful if you have stats that are tracked elsewhere and need to be reflected on leaderboards.
+# Leave empty to disable offline updates.
+# Reminder: Not all placeholders support offline players. Only enable for boards that work offline.
+#  Default: []
+offline-update-boards: []
+
+# How often (in hours) should we update offline players?
+# Only applies if offline-update-boards is not empty.
+# Requires a server restart to apply
+#  Default: 6
+offline-update-interval-hours: 6
+
+# Should we run an offline player update when the plugin starts?
+# Only applies if offline-update-boards is not empty.
+#  Default: false
+offline-update-run-on-startup: false
+
 # If a player's score is 0 (and it wasn't 0 before) then ajLeaderboards will skip updating the player at first
 # This is to fix plugins that return 0 while they're still loading stats
 # If the player's score is still 0 the next time they're updated, then the 0 is shown.

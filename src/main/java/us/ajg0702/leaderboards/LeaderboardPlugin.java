@@ -11,6 +11,7 @@ import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -206,6 +207,8 @@ public class LeaderboardPlugin extends JavaPlugin {
         topManager = new TopManager(this, initialBoards);
 
         reloadInterval();
+
+        scheduleOfflineUpdates();
 
         getScheduler().runTaskTimerAsynchronously(this::scheduleResets, 0, 15 * 60 * 20);
         getScheduler().runTaskTimerAsynchronously(
@@ -417,6 +420,56 @@ public class LeaderboardPlugin extends JavaPlugin {
                 getTopManager().submit(() -> getCache().updatePlayerStats(p));
             }
         }, 10*20, config.getInt("stat-refresh"));
+    }
+
+    public void scheduleOfflineUpdates() {
+        int intervalHours = config.getInt("offline-update-interval-hours");
+        boolean runOnStartup = config.getBoolean("offline-update-run-on-startup");
+        List<String> boards = config.getStringList("offline-update-boards");
+
+        // If no boards specified, feature is disabled
+        if(boards.isEmpty()) {
+            return;
+        }
+
+        // Validate boards
+        List<String> validBoards = new ArrayList<>();
+        for(String board : boards) {
+            if(getTopManager().boardExists(board)) {
+                validBoards.add(board);
+            } else {
+                getLogger().warning("Invalid board '" + board + "' in offline-update-boards config. Skipping.");
+            }
+        }
+
+        if(validBoards.isEmpty()) {
+            getLogger().warning("No valid boards configured for offline updates. Disabling feature.");
+            return;
+        }
+
+        long intervalTicks = intervalHours * 72000L;
+
+        // For startup run: initial delay = 30 seconds, then run at interval
+        // For interval-only: initial delay = interval
+        long initialDelay = runOnStartup ? 30 * 20L : intervalTicks;
+
+        getScheduler().runTaskTimerAsynchronously(() -> {
+            if(isShuttingDown()) return;
+
+            for(String board : validBoards) {
+                if(isShuttingDown()) return;
+
+                if(offlineUpdaters.containsKey(board)) {
+                    getLogger().warning("[OfflineUpdater] " + board + ": Already running, skipping this cycle.");
+                    continue;
+                }
+
+                OfflinePlayer[] players = Bukkit.getOfflinePlayers();
+                new OfflineUpdater(this, board, players, null);
+            }
+        }, initialDelay, intervalTicks);
+
+        getLogger().info("Offline player updates scheduled for boards: " + validBoards + " (every " + intervalHours + " hours)");
     }
 
     final HashMap<TimedType, Task> resetTasks = new HashMap<>();
