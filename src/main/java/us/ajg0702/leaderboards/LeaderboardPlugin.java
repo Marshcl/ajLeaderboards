@@ -460,12 +460,12 @@ public class LeaderboardPlugin extends JavaPlugin {
                 if(isShuttingDown()) return;
 
                 if(offlineUpdaters.containsKey(board)) {
-                    getLogger().warning("[OfflineUpdater] " + board + ": Already running, skipping this cycle.");
+                    getLogger().warning("[OfflineUpdater] " + board + ": Already running, skipping this cycle. Consider increasing offline-update-interval-hours.");
                     continue;
                 }
 
                 OfflinePlayer[] players = Bukkit.getOfflinePlayers();
-                new OfflineUpdater(this, board, players, null);
+                offlineUpdaters.put(board, new OfflineUpdater(this, board, players, null));
             }
         }, initialDelay, intervalTicks);
 
