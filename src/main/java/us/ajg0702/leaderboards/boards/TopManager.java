@@ -34,8 +34,12 @@ public class TopManager {
 
     private final AtomicInteger fetching = new AtomicInteger(0);
 
-    public void shutdown() {
-        fetchService.shutdownNow();
+    public void shutdown(boolean fast) {
+        fetchService.getQueue().clear(); // clear queue so we dont wait for all tasks in the queue to run
+        fetchService.shutdown();
+        try {
+            fetchService.awaitTermination(fast ? 2 : 15, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {}
     }
 
     private static final String OUT_OF_THREADS_MESSAGE = "unable to create native thread: possibly out of memory or process/resource limits reached";
@@ -71,6 +75,7 @@ public class TopManager {
         fetchService.allowCoreThreadTimeOut(true);
 
         plugin.getScheduledExecutorService().scheduleAtFixedRate(() -> {
+            if(plugin.isShuttingDown()) return;
             rolling.add(getQueuedTasks()+getActiveFetchers());
             if(rolling.size() > 50) {
                 rolling.remove(0);

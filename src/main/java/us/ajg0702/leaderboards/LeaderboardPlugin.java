@@ -270,7 +270,11 @@ public class LeaderboardPlugin extends JavaPlugin {
         shuttingDown = true;
         if(getContextLoader() != null) getContextLoader().checkReload(false);
         getScheduler().cancelTasks();
-        if(getTopManager() != null) getTopManager().shutdown();
+        scheduledExecutorService.shutdown();
+        if(getTopManager() != null) getTopManager().shutdown(fastShutdown);
+        try {
+            scheduledExecutorService.awaitTermination(fastShutdown ? 1 : 10, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {}
 
         if(getCache() != null) {
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -287,8 +291,6 @@ public class LeaderboardPlugin extends JavaPlugin {
                 }
             }catch(InterruptedException ignored){}
         }
-
-        scheduledExecutorService.shutdownNow();
 
         if(!fastShutdown) {
             getLogger().info("Killing remaining workers");
