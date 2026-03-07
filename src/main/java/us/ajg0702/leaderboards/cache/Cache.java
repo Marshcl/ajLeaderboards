@@ -444,10 +444,12 @@ public class Cache {
 		for(String b : plugin.getTopManager().getBoards()) {
 			if(!updatableBoards.isEmpty() && !updatableBoards.contains(b)) continue;
 			if(plugin.isShuttingDown()) return;
-			if(player.isOnline() && player.getPlayer() != null) {
+			if(player.isOnline()) {
+				Player onlinePlayer = player.getPlayer();
 				if(
-						plugin.getAConfig().getBoolean("enable-dontupdate-permission") &&
-								player.getPlayer().hasPermission("ajleaderboards.dontupdate."+b)
+						onlinePlayer != null &&
+								plugin.getAConfig().getBoolean("enable-dontupdate-permission") &&
+								onlinePlayer.hasPermission("ajleaderboards.dontupdate."+b)
 				) continue;
 			}
 			// If this update isnt async, then dont run the event until it is async
@@ -520,8 +522,11 @@ public class Cache {
 		if(debug) Debug.info("Placeholder "+board+" for "+player.getName()+" returned "+output);
 
 		String displayName = player.getName();
-		if(player.isOnline() && player.getPlayer() != null) {
-			displayName = player.getPlayer().getDisplayName();
+		if(player.isOnline()) {
+			Player onlinePlayer = player.getPlayer();
+			if(onlinePlayer != null) {
+				displayName = onlinePlayer.getDisplayName();
+			}
 		}
 
 		String prefix;
@@ -598,11 +603,11 @@ public class Cache {
 
 
 			if(debug) Debug.info("Updating "+player.getName()+" on board "+board+" with values v: "+output+" suffix: "+ finalSuffix +" prefix: "+ finalPrefix);
-			try(Connection conn = method.getConnection()) {
-				PreparedStatement statement = conn.prepareStatement(String.format(
+			try(Connection conn = method.getConnection();
+			    PreparedStatement statement = conn.prepareStatement(String.format(
 						method.formatStatement(method.getName().equals("h2") ? INSERT_OR_UPDATE_PLAYER_H2 : INSERT_OR_UPDATE_PLAYER),
 						tablePrefix+board
-				));
+				))) {
 				statement.setString(1, player.getUniqueId().toString());
 				statement.setDouble(2, output);
 				statement.setString(3, player.getName());
@@ -618,7 +623,7 @@ public class Cache {
 					if(type == TimedType.ALLTIME) continue;
 					long lastReset = plugin.getTopManager().getLastReset(board, type)*1000;
 					if(plugin.isShuttingDown()) {
-						method.close(conn);
+						return;
 					}
 					Double lastTotal = lastTotals.get(type);
 					double lastTotalNumber = lastTotal == null ? output : lastTotal;
@@ -664,8 +669,6 @@ public class Cache {
 					}
 				}
 				statement.executeUpdate();
-				statement.close();
-				method.close(conn);
 
 			} catch(SQLException e) {
 				if(plugin.isShuttingDown()) return;
@@ -985,6 +988,7 @@ public class Cache {
 	 */
 	public void cleanPlayer(Player player) {
 		zeroPlayers.removeIf(boardPlayer -> boardPlayer.getPlayer().equals(player));
+		plugin.getTopManager().positionPlayerCache.remove(player.getUniqueId());
 	}
 
 	public List<String> getNonExistantBoards() {

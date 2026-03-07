@@ -137,7 +137,6 @@ public class TopManager {
                     });
                 }
                     if (plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Returning loading for " + key);
-                    cacheStatPosition(position, new BoardType(board, type), null);
                     return StatEntry.loading(plugin, position, board, type);
                 }
             }
@@ -161,17 +160,47 @@ public class TopManager {
     private void cacheStatPosition(int position, BoardType boardType, UUID playerUUID) {
         if(playerUUID == null) return;
 
-        positionPlayerCache.forEach((uuid, map) -> {
-            if (!uuid.equals(playerUUID)) {
-                map.remove(boardType);
+        Integer oldPosition = positionPlayerCache.get(playerUUID) != null 
+            ? positionPlayerCache.get(playerUUID).get(boardType) 
+            : null;
+        
+        if(oldPosition != null) {
+            int minPos = Math.min(oldPosition, position);
+            int maxPos = Math.max(oldPosition, position);
+            
+            if(minPos != maxPos) {
+                positionPlayerCache.forEach((uuid, map) -> {
+                    if(!uuid.equals(playerUUID)) {
+                        Integer cachedPos = map.get(boardType);
+                        if(cachedPos != null && cachedPos >= minPos && cachedPos <= maxPos) {
+                            map.remove(boardType);
+                        }
+                    }
+                });
             }
-        });
+        } else {
+            positionPlayerCache.forEach((uuid, map) -> {
+                if(!uuid.equals(playerUUID)) {
+                    map.remove(boardType, position);
+                }
+            });
+        }
 
         positionPlayerCache.compute(playerUUID, (uuid, existingMap) -> {
             Map<BoardType, Integer> map = existingMap != null ? existingMap : new ConcurrentHashMap<>();
             map.put(boardType, position);
             return map;
         });
+
+        if(positionPlayerCache.size() > 10000) {
+            Iterator<UUID> it = positionPlayerCache.keySet().iterator();
+            while(positionPlayerCache.size() > 10000) {
+                if(it.hasNext()) {
+                    it.next();
+                    it.remove();
+                }
+            }
+        }
     }
 
     Map<PlayerBoardType, Long> statEntryLastRefresh = new ConcurrentHashMap<>();
