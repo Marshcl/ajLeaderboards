@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -153,10 +154,10 @@ public class SignManager {
         }
     }
 
-    final HashMap<String, String> names = new HashMap<>();
+    final ConcurrentHashMap<String, String> names = new ConcurrentHashMap<>();
     public void updateNameCache() {
-        List<String> namesraw = plugin.getAConfig().getStringList("value-names");
-        for(String s : namesraw) {
+        List<String> namesRaw = plugin.getAConfig().getStringList("value-names");
+        for(String s : namesRaw) {
             if(!s.contains("%")) continue;
             String[] parts = s.split("%");
             names.put(parts[0], parts[1]);

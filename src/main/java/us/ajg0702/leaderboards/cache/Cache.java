@@ -682,71 +682,51 @@ public class Cache {
 
 	public Double getLastTotal(String board, OfflinePlayer player, TimedType type) {
 		Double last = null;
-		try {
-			Connection conn = method.getConnection();
-			try {
-				PreparedStatement ps = conn.prepareStatement(String.format(
-						method.formatStatement(QUERY_LASTTOTAL),
-						type.lowerName()+"_lasttotal",
-						tablePrefix+board
-				));
-
-				ps.setString(1, player.getUniqueId().toString());
-
-				ResultSet rs = ps.executeQuery();
-
+		try (Connection conn = method.getConnection();
+		     PreparedStatement ps = conn.prepareStatement(String.format(
+					method.formatStatement(QUERY_LASTTOTAL),
+					type.lowerName()+"_lasttotal",
+					tablePrefix+board
+			))) {
+			ps.setString(1, player.getUniqueId().toString());
+			try (ResultSet rs = ps.executeQuery()) {
 				if(method instanceof MysqlMethod || method instanceof H2Method) {
 					if (!rs.next()) {
-						rs.close();
-						ps.close();
-						method.close(conn);
 						return last;
 					}
 				}
 				last = rs.getDouble(1);
-				rs.close();
-				ps.close();
-				method.close(conn);
-			} catch(SQLException e) {
-				method.close(conn);
-				String m = e.getMessage();
-				if(m == null || m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
-				plugin.getLogger().log(Level.WARNING, "Unable to get last total for "+player.getName()+" on "+type+" of "+board, e);
 			}
-		} catch(SQLException ignored) {}
+		} catch(SQLException e) {
+			String m = e.getMessage();
+			if(m == null || m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
+			plugin.getLogger().log(Level.WARNING, "Unable to get last total for "+player.getName()+" on "+type+" of "+board, e);
+		}
 
 		return last;
 	}
 
 	public long getLastReset(String board, TimedType type) {
 		long last = 0;
-		try {
-			Connection conn = method.getConnection();
-			try {
-				PreparedStatement ps = conn.prepareStatement(String.format(
-						method.formatStatement(QUERY_LASTRESET),
-						type.lowerName()+"_timestamp",
-						tablePrefix+board
-				));
-
-				ResultSet rs = ps.executeQuery();
+		try (Connection conn = method.getConnection();
+		     PreparedStatement ps = conn.prepareStatement(String.format(
+					method.formatStatement(QUERY_LASTRESET),
+					type.lowerName()+"_timestamp",
+					tablePrefix+board
+			))) {
+			try (ResultSet rs = ps.executeQuery()) {
 				if(method instanceof MysqlMethod || method instanceof H2Method) {
 					if (!rs.next()) {
-						ps.close();
-						method.close(conn);
 						return last;
 					}
 				}
 				last = rs.getLong(1);
-				ps.close();
-				method.close(conn);
-			} catch(SQLException e) {
-				method.close(conn);
-				String m = e.getMessage();
-				if(m == null || m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
-				plugin.getLogger().log(Level.WARNING, "Unable to get last reset for "+type+" of "+board, e);
 			}
-		} catch(SQLException ignored) {}
+		} catch(SQLException e) {
+			String m = e.getMessage();
+			if(m == null || m.contains("empty result set") || m.contains("ResultSet closed") || m.contains("[2000-")) return last;
+			plugin.getLogger().log(Level.WARNING, "Unable to get last reset for "+type+" of "+board, e);
+		}
 
 		return last;
 	}
@@ -783,21 +763,16 @@ public class Cache {
 		}
 		Debug.info("last: "+lastReset+" gap: "+(startTime - lastReset));
 		String t = type.lowerName();
-		try {
-			Connection conn = method.getConnection();
-			PreparedStatement ps = conn.prepareStatement(String.format(
+		try (Connection conn = method.getConnection();
+		     PreparedStatement ps = conn.prepareStatement(String.format(
 					method.formatStatement(QUERY_IDVALUE),
 					tablePrefix+board
 			));
-
-			ResultSet rs = ps.executeQuery();
+		     ResultSet rs = ps.executeQuery()) {
 			Map<String, Double> uuids = new HashMap<>();
 			while(rs.next()) {
 				uuids.put(rs.getString(1), rs.getDouble(2));
 			}
-			rs.close();
-			ps.close();
-			method.close(conn);
 			Partition<String> partition = Partition.ofSize(new ArrayList<>(uuids.keySet()), Math.max(uuids.size()/(int) Math.ceil(method.getMaxConnections()/2D), 1));
 			Debug.info("Partition length: "+partition.size()+" uuids size: "+ uuids.size()+" partition chunk size: "+partition.getChunkSize());
 			for(List<String> uuidPartition : partition) {
@@ -806,19 +781,19 @@ public class Cache {
 				}
 				try (Connection con = method.getConnection()) {
 					for(String idRaw : uuidPartition) {
-						PreparedStatement p = con.prepareStatement(String.format(
+						try (PreparedStatement p = con.prepareStatement(String.format(
 								method.formatStatement(UPDATE_RESET),
 								tablePrefix+board,
 								t+"_lasttotal",
 								t+"_delta",
 								t+"_timestamp"
-						));
-						p.setDouble(1, uuids.get(idRaw));
-						p.setDouble(2, 0);
-						p.setLong(3, newTime);
-						p.setString(4, idRaw);
-						p.executeUpdate();
-						p.close();
+						))) {
+							p.setDouble(1, uuids.get(idRaw));
+							p.setDouble(2, 0);
+							p.setLong(3, newTime);
+							p.setString(4, idRaw);
+							p.executeUpdate();
+						}
 					}
 				} catch (SQLException e) {
 					plugin.getLogger().log(Level.WARNING, "An error occurred while resetting "+type+" of "+board+":", e);

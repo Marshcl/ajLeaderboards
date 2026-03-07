@@ -47,6 +47,7 @@ public class OfflineUpdater {
         });
     }
     public double getProgressPercent() {
+        if (started == 0) return 1; // No players started, avoid division by zero
         return offlinePlayerQueue.size() / ((double) started);
     }
     public int getRemainingPlayers() {

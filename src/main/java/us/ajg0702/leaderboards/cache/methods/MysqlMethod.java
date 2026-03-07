@@ -34,14 +34,19 @@ public class MysqlMethod implements CacheMethod {
     @Override
     public void init(LeaderboardPlugin plugin, ConfigFile config, Cache cacheInstance) {
         String ip = config.getString("ip");
+        if (ip == null) throw new IllegalArgumentException("Missing required config: mysql.ip");
         String username = config.getString("username");
+        if (username == null) throw new IllegalArgumentException("Missing required config: mysql.username");
         String password = config.getString("password");
+        if (password == null) throw new IllegalArgumentException("Missing required config: mysql.password");
         String database = config.getString("database");
+        if (database == null) throw new IllegalArgumentException("Missing required config: mysql.database");
         boolean useSSL = config.getBoolean("useSSL");
         boolean allowPublicKeyRetrieval = config.getBoolean("allowPublicKeyRetrieval");
         int minCount = config.getInt("minConnections");
         int maxCount = config.getInt("maxConnections");
         String charEncoding = config.getString("characterEncoding");
+        if (charEncoding == null) throw new IllegalArgumentException("Missing required config: mysql.characterEncoding");
 
         String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&useUnicode=true&character_set_server="+charEncoding+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&useInformationSchema=true";
         hikariConfig.setJdbcUrl(url);

@@ -127,6 +127,7 @@ public class TopManager {
                     cached = positionCache.getUnchecked(key);
                 } else {
                 if (positionFetching.add(key)) {
+                    if (plugin.isShuttingDown()) return StatEntry.loading(plugin, position, board, type);
                     if (plugin.getAConfig().getBoolean("fetching-de-bug")) Debug.info("Starting fetch on " + key);
                     fetchService.submit(() -> {
                         positionCache.getUnchecked(key);
@@ -221,6 +222,7 @@ public class TopManager {
                 if (BlockingFetch.shouldBlock(plugin)) {
                     cached = statEntryCache.getUnchecked(key);
                 } else {
+                    if (plugin.isShuttingDown()) return StatEntry.loading(player, key.getBoardType());
                     fetchService.submit(() -> statEntryCache.getUnchecked(key));
                     return StatEntry.loading(player, key.getBoardType());
                 }
@@ -248,6 +250,7 @@ public class TopManager {
         try {
             r = statEntryCache.getIfPresent(key);
             if(fetchIfAbsent && r == null) {
+                if (plugin.isShuttingDown()) return null;
                 fetchService.submit(() -> statEntryCache.getUnchecked(key));
             }
         } catch(Exception e) {
@@ -270,6 +273,7 @@ public class TopManager {
         try {
             r = positionCache.getIfPresent(positionBoardType);
             if (r == null && fetchIfAbsent) {
+                if (plugin.isShuttingDown()) return null;
                 fetchService.submit(() -> positionCache.getUnchecked(positionBoardType));
             }
         } catch(Exception e) {
@@ -329,6 +333,7 @@ public class TopManager {
                 if (BlockingFetch.shouldBlock(plugin)) {
                     cached = boardSizeCache.getUnchecked(board);
                 } else {
+                    if (plugin.isShuttingDown()) return -2;
                     fetchService.submit(() -> boardSizeCache.getUnchecked(board));
                     return -2;
                 }
@@ -393,6 +398,7 @@ public class TopManager {
                 if (BlockingFetch.shouldBlock(plugin)) {
                     cached = totalCache.getUnchecked(boardType);
                 } else {
+                    if (plugin.isShuttingDown()) return -2;
                     fetchService.submit(() -> totalCache.getUnchecked(boardType));
                     return -2;
                 }
@@ -434,6 +440,7 @@ public class TopManager {
     }
 
     public void fetchBoardsAsync() {
+        if (plugin.isShuttingDown()) return;
         checkWrong();
         fetchService.submit(this::fetchBoards);
     }
@@ -529,6 +536,7 @@ public class TopManager {
         return value;
     }
     public void fetchExtraAsync(UUID id, String placeholder) {
+        if (plugin.isShuttingDown()) return;
         fetchService.submit(() -> fetchExtra(id, placeholder));
     }
 
@@ -657,6 +665,7 @@ public class TopManager {
 
     @SuppressWarnings("UnusedReturnValue")
     public Future<?> submit(Runnable task) {
+        if (plugin.isShuttingDown()) return null;
         return fetchService.submit(task);
     }
 

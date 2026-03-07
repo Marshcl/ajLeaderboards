@@ -138,6 +138,12 @@ public class LeaderboardPlugin extends JavaPlugin {
             getLogger().log(Level.WARNING, "An error occurred while loading your config:", e);
         }
 
+        if (config == null) {
+            getLogger().severe("Failed to load config! Please fix the error above and then restart the server.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         Debug.setLogger(getLogger());
         Debug.setDebug(config.getBoolean("debug"));
         Debug.setParticles(config.getBoolean("particles"));
@@ -281,6 +287,8 @@ public class LeaderboardPlugin extends JavaPlugin {
                 }
             }catch(InterruptedException ignored){}
         }
+
+        scheduledExecutorService.shutdownNow();
 
         if(!fastShutdown) {
             getLogger().info("Killing remaining workers");

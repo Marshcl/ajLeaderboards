@@ -29,7 +29,7 @@ public class ArmorStandManager {
         this.plugin = plugin;
     }
 
-    private final HashMap<Location, ArmorStandCache> armorStandCache = new HashMap<>();
+    private final ConcurrentHashMap<Location, ArmorStandCache> armorStandCache = new ConcurrentHashMap<>();
 
     private void checkArmorstand(BoardSign sign, Location loc, String name, UUID id) throws ExecutionException, InterruptedException, TimeoutException {
         ArmorStandCache cache = armorStandCache.get(sign.getLocation());

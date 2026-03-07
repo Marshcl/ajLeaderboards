@@ -26,8 +26,9 @@ public class H2Method implements CacheMethod {
     private LeaderboardPlugin plugin;
     private ConfigFile config;
     private Cache cacheInstance;
+    private boolean initialized = false;
     @Override
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
         try {
             if(conn == null || conn.isClosed()) {
                 plugin.getLogger().warning("H2 connection is dead, making a new one");
@@ -35,6 +36,9 @@ public class H2Method implements CacheMethod {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        if (!initialized) {
+            throw new SQLException("H2 database not initialized");
         }
         return new UnClosableConnection(conn);
     }
@@ -76,6 +80,7 @@ public class H2Method implements CacheMethod {
             e.printStackTrace();
             return;
         }
+        initialized = true;
         List<String> tables = cacheInstance.getDbTableList();
 
         try(Statement statement = conn.createStatement()) {
