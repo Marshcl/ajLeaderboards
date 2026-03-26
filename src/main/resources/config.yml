@@ -60,6 +60,16 @@ register-lp-contexts: false
 # Example: - "statistic_time_played"
 only-register-lpc-for: []
 
+# IN AJLB PLACEHOLDERS, should we parse PlaceholderAPI placeholders?
+# This ONLY applies to `%ajlb_...` placeholders
+# It is disabled by default because it adds an extra step to every placeholder request,
+#  which can cause lag if a LOT of placeholders are requested at once.
+# It'd probably be fine for most servers though.
+# If you enable this, you can use PlaceholderAPI placeholders
+#  in `%ajlb_...` placeholders by using `{}` instead of `%%` around the placeholder.
+#  Default: false
+parse-placeholders-in-placeholders: false
+
 # Boards listed here will be sorted in reverse order
 # e.g. instead of showing the highest on top, boards listed here will show the lowest on top
 reverse-sort: []
@@ -278,7 +288,7 @@ fetching-thread-pool-keep-alive: 500
 
 
 # Don't touch this
-config-version: 40
+config-version: 41
 
 # ----- THESE OPTIONS HAVE MOVED -----
 # to messages.yml. They will be removed from here in the future.
