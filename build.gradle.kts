@@ -35,9 +35,9 @@ dependencies {
     compileOnly("org.xerial:sqlite-jdbc:3.32.3.2")
     compileOnly("org.spongepowered:configurate-yaml:4.0.0")
 
-    implementation("net.kyori:adventure-api:4.12.0")
-    implementation("net.kyori:adventure-text-minimessage:4.12.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.3")
+    implementation("net.kyori:adventure-api:4.26.1")
+    implementation("net.kyori:adventure-text-minimessage:4.26.1")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
 
     implementation("us.ajg0702:ajUtils:1.2.29")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
