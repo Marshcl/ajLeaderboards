@@ -169,7 +169,7 @@ if(!github?.event) {
         uploadData.append("file", file);
 
         uploadResponse = await fetch(polymartResponseData.upload.url, {
-            method: "POST",
+            method: "PUT",
             headers: {
                 "User-Agent": "ajUpdater/2.0",
                 "enctype": "multipart/form-data"
