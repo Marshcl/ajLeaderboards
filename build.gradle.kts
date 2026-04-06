@@ -74,6 +74,9 @@ tasks.withType<ProcessResources> {
 }
 
 tasks.slimJar {
+    mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo.papermc.io/repository/maven-public/")
+    mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo.maven.apache.org/maven2/")
+
     relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
     relocate("com.squareup", "us.ajg0702.leaderboards.libs")

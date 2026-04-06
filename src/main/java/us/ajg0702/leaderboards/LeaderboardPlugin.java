@@ -1,6 +1,7 @@
 package us.ajg0702.leaderboards;
 
 import io.github.slimjar.app.builder.ApplicationBuilder;
+import io.github.slimjar.resolver.data.Mirror;
 import io.github.slimjar.resolver.data.Repository;
 import io.github.slimjar.resolver.mirrors.SimpleMirrorSelector;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -51,20 +52,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.time.DayOfWeek;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class LeaderboardPlugin extends JavaPlugin {
 
@@ -109,8 +107,8 @@ public class LeaderboardPlugin extends JavaPlugin {
             ApplicationBuilder.appending("ajLeaderboards")
                     .logger(new SlimJarLogger(this))
                     .downloadDirectoryPath(downloadPath)
-                    .mirrorSelector((a, b) -> a)
-                    .internalRepositories(Collections.singleton(new Repository(new URL(SimpleMirrorSelector.ALT_CENTRAL_URL))))
+//                    .internalRepositories(Collections.singleton(new Repository(new URL("https://repo-mirror.ajg0702.us/mirror/"))))
+                    .mirrorSelector((a, b) -> Collections.singleton(new Repository(new URL("https://repo-mirror.ajg0702.us/mirror/"))))
                     .build();
         } catch (IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {
             e.printStackTrace();
