@@ -107,7 +107,7 @@ public class LeaderboardPlugin extends JavaPlugin {
             ApplicationBuilder.appending("ajLeaderboards")
                     .logger(new SlimJarLogger(this))
                     .downloadDirectoryPath(downloadPath)
-//                    .internalRepositories(Collections.singleton(new Repository(new URL("https://repo-mirror.ajg0702.us/mirror/"))))
+                    .internalRepositories(Collections.singleton(new Repository(new URL("https://repo-mirror.ajg0702.us/mirror/"))))
                     .mirrorSelector((a, b) -> Collections.singleton(new Repository(new URL("https://repo-mirror.ajg0702.us/mirror/"))))
                     .build();
         } catch (IOException | ReflectiveOperationException | URISyntaxException | NoSuchAlgorithmException e) {

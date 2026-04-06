@@ -53,7 +53,7 @@ dependencies {
 
     slim("com.zaxxer:HikariCP:3.4.5")
     slim("com.h2database:h2:2.1.214")
-    slim("com.squareup.okhttp3:okhttp:4.11.0")
+    slim("com.squareup.okhttp3:okhttp:4.12.0")
     //implementation("io.prometheus", "simpleclient", "0.9.0")
 }
 
@@ -76,6 +76,9 @@ tasks.withType<ProcessResources> {
 tasks.slimJar {
     mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo.papermc.io/repository/maven-public/")
     mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo.maven.apache.org/maven2/")
+    mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo1.maven.org/maven2/")
+    mirror("https://repo-mirror.ajg0702.us/mirror", "https://oss.sonatype.org/content/groups/public/")
+    mirror("https://repo-mirror.ajg0702.us/mirror", "https://repo.vshnv.tech/")
 
     relocate("org.h2", "us.ajg0702.leaderboards.libs.h2")
     relocate("com.zaxxer.hikari", "us.ajg0702.leaderboards.libs.hikari")
