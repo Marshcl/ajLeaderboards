@@ -52,7 +52,7 @@ public class SignManager {
         cfgFile = new File(plugin.getDataFolder(), "displays.yml");
         cfg = YamlConfiguration.loadConfiguration(cfgFile);
         String headerText = "This file is for storing sign location, npcs, and other things in the plugin that might display data";
-        if(VersionSupport.getMinorVersion() > 18) {
+        if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() > 18) {
             cfg.options().setHeader(Collections.singletonList(headerText));
         } else {
             //noinspection deprecation

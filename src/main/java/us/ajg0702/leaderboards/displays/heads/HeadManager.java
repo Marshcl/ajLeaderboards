@@ -33,7 +33,7 @@ public class HeadManager {
         Sign ss = sign.getSign();
         if(ss == null) return;
         BlockFace face;
-        if(VersionSupport.getMinorVersion() > 12) {
+        if(VersionSupport.minorVersionEqualGreaterThan(13)) {
             BlockData bd = ss.getBlockData();
             if(bd instanceof org.bukkit.block.data.type.Sign) {
                 org.bukkit.block.data.type.Sign bs = (org.bukkit.block.data.type.Sign) bd;
@@ -138,7 +138,7 @@ public class HeadManager {
 
         Debug.info("Updating head with "+id);
 
-        OfflinePlayer op = VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
+        OfflinePlayer op = VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() > 9 ? Bukkit.getOfflinePlayer(id) : null;
 
         if(plugin.getHeadUtils().getVersionedHeadUtils() != null) {
             plugin.getScheduler().runTaskAsynchronously(
