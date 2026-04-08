@@ -150,7 +150,7 @@ public class HeadManager {
                 if(!(bs instanceof Skull)) return;
 
                 Skull skull = (Skull) bs;
-                if(VersionSupport.getMinorVersion() > 9) {
+                if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() > 9) {
                     assert op != null;
                     skull.setOwningPlayer(op);
                 } else {
