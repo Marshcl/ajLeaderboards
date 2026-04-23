@@ -550,6 +550,39 @@ public class Cache {
 			prefix = "";
 		}
 
+		// ── Bake MCHeroes rank gradient placeholders into the cached values ──
+		//
+		// The user composes their display string as:
+		//   %ajlb_lb_*_prefix%  %ajlb_lb_*_name%
+		//
+		// We need the gradient placeholders baked at write-time because:
+		//   • %mcheroesrank_set_color% / %mcheroesrank_set_gradient% are
+		//     player-specific PAPI placeholders that must be resolved while
+		//     the leaderboard-slot player is online and has full context.
+		//   • At read-time the viewer is the PAPI context, not the cached
+		//     player, so the wrong rank gradient would be applied.
+		//
+		// Result layout stored in DB:
+		//   prefixcache → [resolved color tag][original prefix]
+		//   namecache   → [resolved gradient tag][player name]
+		// %mcheroesrank_set_color% / %mcheroesrank_set_gradient% are PAPI
+		// placeholders that require a fully online Player — they cannot be
+		// resolved against an OfflinePlayer and will silently return the raw
+		// placeholder text if passed one.  We only bake them in while the
+		// player is online; offline updates keep the plain prefix/name so the
+		// DB is never polluted with unresolved tokens.
+		if (player.isOnline() && Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			Player onlineForPapi = player.getPlayer();
+			if (onlineForPapi != null) {
+				String colorTag    = PlaceholderAPI.setPlaceholders(onlineForPapi, "%mcheroesrank_set_color%");
+				String gradientTag = PlaceholderAPI.setPlaceholders(onlineForPapi, "%mcheroesrank_set_gradient%");
+				if (!prefix.isEmpty()) {
+					prefix = colorTag + prefix;
+				}
+				displayName = gradientTag + displayName;
+			}
+		}
+
 		boolean waitedUpdate = Bukkit.isPrimaryThread();
 
 		String finalDisplayName = displayName;
